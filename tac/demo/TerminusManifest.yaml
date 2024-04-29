@@ -1,0 +1,51 @@
+terminusManifest.version: v1
+terminusManifest.type: app
+metadata:
+  name: demo
+  icon: https://file.bttcdn.com/appstore/default/defaulticon.webp
+  description: app demo
+  appid: demo
+  title: App Demo
+  version: 0.0.5
+  categories:
+  - dev
+entrances:
+- name: demo
+  host: demo
+  port: 8080
+  icon: https://file.bttcdn.com/appstore/default/defaulticon.webp
+  title: demo
+  authLevel: private
+  openMethod: default
+spec:
+  versionName: 0.0.1
+  fullDescription: A demo app for Terminus development
+  requiredMemory: 500Mi
+  requiredDisk: 50Mi
+  supportArch:
+  - amd64
+  requiredCpu: 50m
+  limitedMemory: 3000Mi
+  limitedCpu: 2000m
+permission:
+  appData: true
+  appCache: true
+  userData: []
+middleware:
+  postgres:
+    username: demo
+    databases:
+    - name: demo
+      distributed: false
+options:
+  analytics:
+    enabled: false
+  resetCookie:
+    enabled: false
+  dependencies:
+  - name: terminus
+    version: '>=0.1.0'
+    type: system
+  appScope:
+    clusterScoped: false
+    appRef: []

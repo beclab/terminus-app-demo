@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: demo
+  name: demo
+  namespace: '{{ .Release.Namespace }}'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: demo
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/chrome-default: "true"
+        io.kompose.service: demo
+    spec:
+      containers:
+      - env:
+        - name: PGID
+          value: "1000"
+        - name: PUID
+          value: "1000"
+        - name: TZ
+          value: Etc/UTC
+        image: bytetrade/demo-app:0.0.1
+        name: demo
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "1"
+            memory: 2000Mi
+          requests:
+            cpu: 50m
+            memory: 1000Mi
+        volumeMounts:
+        - mountPath: /appcache
+          name: appcache
+      - env:
+        - name: DB_PORT
+          value: "{{ .Values.postgres.port }}"
+        - name: DB_NAME
+          value: "{{ .Values.postgres.databases.demo }}"
+        - name: DB_USER
+          value: "{{ .Values.postgres.username }}"
+        - name: DB_HOST
+          value: "{{ .Values.postgres.host }}"
+        - name: DB_PWD
+          value: "{{ .Values.postgres.password }}"
+        - name: PGID
+          value: "1000"
+        - name: PUID
+          value: "1000"
+        - name: TZ
+          value: Etc/UTC
+        image: bytetrade/demo-server:0.0.1
+        name: server
+        ports:
+        - containerPort: 9000
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1000Mi
+          requests:
+            cpu: 50m
+            memory: 500Mi
+        volumeMounts:
+        - mountPath: /appcache
+          name: appcache
+        - mountPath: /appdata
+          name: appdata
+      restartPolicy: Always
+      volumes:
+      - hostPath:
+          path: '{{ .Values.userspace.appCache }}/demo'
+          type: DirectoryOrCreate
+        name: appcache
+      - hostPath:
+          path: '{{ .Values.userspace.appData }}/demo'
+          type: DirectoryOrCreate
+        name: appdata
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: demo
+  name: demo
+  namespace: '{{ .Release.Namespace }}'
+spec:
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  selector:
+    io.kompose.service: demo
+status:
+  loadBalancer: {}
